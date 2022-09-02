@@ -7,8 +7,8 @@
  *Class: processcontroller.cpp
  *Programmer: Mohamed
  *Date Created: July 21, 2022
- *Date Updated: August 13, 2022
- *Version 0.1
+ *Date Updated: September 2, 2022
+ *Version 0.2
  *
  *This class generates a QProcess object that is used to start program executables as sub-processes of the graphical interface.
  *Launch arguments for the subprocesses can be provided via a QStringList
