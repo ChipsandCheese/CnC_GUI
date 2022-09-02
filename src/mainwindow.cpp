@@ -26,6 +26,11 @@ MainWindow::~MainWindow()
     process->stopProgram(); //Remove if processes are spawned in sub windows
 }
 
+//This gets the output from the spawned process and displays it in the output textbox
+void MainWindow::readOut() {
+    ui->testOutput->append(process->output);
+}
+
 //Runs when Instruction Rate is selected by user
 void MainWindow::on_instructionRateButton_clicked()
 {
@@ -75,14 +80,10 @@ void MainWindow::spawnProcess()
 
     launchArgs.clear(); //Resets launch arguments for future test starts
 
-    ui->testOutput->appendPlainText("test started"); //Temporary Implementation
+    ui->testOutput->appendPlainText("Test Started"); //Temporary Implementation
 
-    /* Mounts the process output to the test output box.
-     * Note: suboptimal solution. should look for a better way to link output stream to UI textbrowser
-     */
-    connect(process->process, &QProcess::readyReadStandardOutput, ui->testOutput, [=]() {
-                ui->testOutput->appendPlainText(process->output);
-        });
+    /* Mounts the process output to the test output box. */
+    connect(process->process, &QProcess::readyReadStandardOutput, this, readOut);
 }
 
 //Stops the test process

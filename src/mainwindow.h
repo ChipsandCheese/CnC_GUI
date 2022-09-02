@@ -45,6 +45,8 @@ private slots:
 
     void on_clearOutputButton_clicked();
 
+    void readOut();
+
 private:
     Ui::MainWindow *ui;
 };
