@@ -2,7 +2,7 @@
 #include "./ui_mainwindow.h"
 
 //Build Variables.  Change Based On Compile Target, or tests may not run.
-QString relativePath = "../../Microbenchmarks/"; //Currently unused, but would act as a prefix for the relative path of test files.
+QString relativePath = "../../Microbenchmarks/"; //The relative path of test files.
 QString isa = "x86"; //Defines the ISA for the tests to be run. Needs to match the nomenclature used in the test executables.
 QString ext = ".exe"; //Defines the file extension for process executables.
 
@@ -24,11 +24,6 @@ MainWindow::~MainWindow()
 {
     delete ui;
     process->stopProgram(); //Remove if processes are spawned in sub windows
-}
-
-//This gets the output from the spawned process and displays it in the output textbox
-void MainWindow::readOut() {
-    ui->testOutput->append(process->output);
 }
 
 //Runs when Instruction Rate is selected by user
@@ -76,14 +71,28 @@ void MainWindow::spawnProcess()
 {
     //This blocks ensures the correct test is started, with the correct launch parameters
     process->ProcessController::setProgramName(programName);
-    process->ProcessController::startProgram(launchArgs);
+    switch(process->ProcessController::startProgram(launchArgs))
+    {
+        case 0:
+            ui->testOutput->appendPlainText("Test Started");
+            break;
+        case 1:
+            ui->testOutput->appendPlainText("Test Failed to Start.\n Check for Missing Files, and ensure you have the correct file permissions.");
+            break;
+        case 2:
+            ui->testOutput->appendPlainText("Test Crashed");
+            break;
+    }
+
+    ui->testOutput->appendPlainText("test started");
 
     launchArgs.clear(); //Resets launch arguments for future test starts
 
-    ui->testOutput->appendPlainText("Test Started"); //Temporary Implementation
-
-    /* Mounts the process output to the test output box. */
-    connect(process->process, &QProcess::readyReadStandardOutput, this, readOut);
+    /* Mounts the process output to the test output box.
+     * Note: suboptimal solution. should look for a better way to link output stream to UI textbrowser
+     */
+    connect(process->process, &QProcess::readyReadStandardOutput,
+            ui->testOutput, [=](){ui->testOutput->appendPlainText(process->output);});
 }
 
 //Stops the test process

@@ -1,41 +1,50 @@
 #include "processcontroller.h"
 
 // creates the process in a known, defined state
-ProcessController::ProcessController() {
+ProcessController::ProcessController()
+{
     process = nullptr;
     open = 0;
 }
 
 // sets the microbench process executable relative path
-void ProcessController::setProgramName(QString newProgramName) {
+void ProcessController::setProgramName(QString newProgramName)
+{
     program = newProgramName;
 }
 
 // launches microbench
-int ProcessController::startProgram(QStringList launchargs) {
-    if(!open) {
+int ProcessController::startProgram(QStringList launchargs)
+{
+    if(!open)
+    {
         // process creation and init logic
         open = 1; // activate the lock to prevent new instances from spawning
         process = new QProcess(this); // create new process
 
         // if the process reports an error -- release the lock, report error, and return appropriate error code (1 = process failed to start, 2 = process crashed)
-        connect(process, &QProcess::errorOccurred, this, [=](){
+        connect(process, &QProcess::errorOccurred, this, [=]()
+        {
             open = 0;
             // debug logic to track errors
             qDebug() << process->error(); // for debugging purposes -- outputs any errors the process reports in the output console. note: QProcess::UnknownError is the default return value for this
-            if(process->error() == 0) {
+            if(process->error() == 0)
+            {
                 return 1;
             }
-            else if(process->error() == 1) {
+            else if(process->error() == 1)
+            {
                 return 2;
             }
-            });
+        });
 
         // Output handling logic
-        connect(process, &QProcess::readyReadStandardOutput, [this]() {
+        connect(process, &QProcess::readyReadStandardOutput, [this]()
+        {
                 output = process->readAllStandardOutput();
             }); // connects to the process' output signal and accepts input from the stdout stream and appends it to a buffer
-        connect(process, &QProcess::readyReadStandardError, [this]() {
+        connect(process, &QProcess::readyReadStandardError, [this]()
+        {
                 output = process->readAllStandardError();
             }); // connects to the process' output signal and accepts input from the stderr stream and appends it to a buffer
 
