@@ -28,14 +28,7 @@ int ProcessController::startProgram(QStringList launchargs)
             open = 0;
             // debug logic to track errors
             qDebug() << process->error(); // for debugging purposes -- outputs any errors the process reports in the output console. note: QProcess::UnknownError is the default return value for this
-            if(process->error() == 0)
-            {
-                return 1;
-            }
-            else if(process->error() == 1)
-            {
-                return 2;
-            }
+            return process->error();
         });
 
         // Output handling logic

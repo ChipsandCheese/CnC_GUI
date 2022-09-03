@@ -71,20 +71,20 @@ void MainWindow::spawnProcess()
 {
     //This blocks ensures the correct test is started, with the correct launch parameters
     process->ProcessController::setProgramName(programName);
-    switch(process->ProcessController::startProgram(launchArgs))
+    process->ProcessController::startProgram(launchArgs);
+    switch(process->process->error())
     {
+
         case 0:
-            ui->testOutput->appendPlainText("Test Started");
+            ui->testOutput->appendPlainText("Test Failed to Start.\nCheck for Missing Files, and ensure you have the correct file permissions.");
             break;
         case 1:
-            ui->testOutput->appendPlainText("Test Failed to Start.\n Check for Missing Files, and ensure you have the correct file permissions.");
-            break;
-        case 2:
             ui->testOutput->appendPlainText("Test Crashed");
             break;
+        case 5:
+            ui->testOutput->appendPlainText("Test Started");
+            break;
     }
-
-    ui->testOutput->appendPlainText("test started");
 
     launchArgs.clear(); //Resets launch arguments for future test starts
 
