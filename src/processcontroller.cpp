@@ -49,6 +49,7 @@ int ProcessController::startProgram(QStringList launchargs)
         open = 0;
         delete process;
         });
+
         return 0;
     }
 }
@@ -58,6 +59,7 @@ int ProcessController::stopProgram() {
     if(open == 1)
     {
         process->kill();
+        open = 0;
         return 0;
     }
     else
