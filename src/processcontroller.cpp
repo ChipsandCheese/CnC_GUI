@@ -22,7 +22,7 @@ int ProcessController::startProgram(QStringList launchargs)
         open = 1; // activate the lock to prevent new instances from spawning
         process = new QProcess(this); // create new process
 
-        // if the process reports an error -- release the lock, report error, and return appropriate error code (1 = process failed to start, 2 = process crashed)
+        // if the process reports an error -- release the lock, report error, and return appropriate error code
         connect(process, &QProcess::errorOccurred, this, [=]()
         {
             open = 0;

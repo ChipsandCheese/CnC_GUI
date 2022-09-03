@@ -5,8 +5,8 @@
  *Class: mainwindow.cpp
  *Programmer: Nintonito
  *Date Created: July 21, 2022
- *Date Updated: August 11, 2022
- *Version 0.1
+ *Date Updated: September 2, 2022
+ *Version 0.2
  *
  *This class generates a main window with various buttons, used for starting micro benchmarks.
  *A text box is provided to view the output of the tests in real-time.S

@@ -72,6 +72,8 @@ void MainWindow::spawnProcess()
     //This blocks ensures the correct test is started, with the correct launch parameters
     process->ProcessController::setProgramName(programName);
     process->ProcessController::startProgram(launchArgs);
+
+    //This block handles the error codes during process launch
     switch(process->process->error())
     {
 
