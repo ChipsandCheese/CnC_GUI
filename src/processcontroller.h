@@ -7,8 +7,8 @@
  *Class: processcontroller.cpp
  *Programmer: Mohamed
  *Date Created: July 21, 2022
- *Date Updated: September 2, 2022
- *Version 0.2
+ *Date Updated: September 13, 2022
+ *Version 0.3
  *
  *This class generates a QProcess object that is used to start program executables as sub-processes of the graphical interface.
  *Launch arguments for the subprocesses can be provided via a QStringList
@@ -28,7 +28,41 @@ public:
     QByteArray output;
     ProcessController();
     void setProgramName(QString newProgramName);
-    int startProgram(QStringList launchargs);
+
+    // launches microbench
+    template <typename Gui>
+    int startProgram(QStringList launchargs, Gui* gui)
+    {
+        if(!open)
+        {
+            // process creation and init logic
+            open = 1; // activate the lock to prevent new instances from spawning
+            process = new QProcess(this); // create new process
+
+            // if the process reports an error -- release the lock, report error, and return appropriate error code
+            connect(process, &QProcess::errorOccurred, gui, [=]() {
+                            gui->errorHandle(process->error());
+                        });
+
+            // output handling logic
+            process->setProcessChannelMode(QProcess::MergedChannels); // directs all output to the stdout stream
+            connect(process, &QProcess::readyReadStandardOutput, gui, [=](){
+                    output = process->readAllStandardOutput();
+                    gui->printOut();
+                        }); // connects to the process' output signal and accepts input from the stdout stream and appends it to a buffer, then signals to the GUI to print the buffer
+
+            process->start(program, launchargs); // start the microbenchmark process
+
+            // when the process signals that it has finished -- release the lock and free process memory
+            connect(process, &QProcess::finished, this, [=](){
+            open = 0;
+            delete process;
+            });
+
+            return 0;
+        }
+    }
+
     int stopProgram();
 };
 

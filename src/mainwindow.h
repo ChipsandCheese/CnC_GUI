@@ -32,6 +32,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void spawnProcess();
+
+public slots:
+    void errorHandle(QProcess::ProcessError error);
+    void printOut();
+
 private slots:
     void on_instructionRateButton_clicked();
 

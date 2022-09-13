@@ -67,34 +67,37 @@ void MainWindow::on_coherencyLatencyButton_clicked()
     spawnProcess();
 }
 
+//Helper function used to handle errors that may occur
+void MainWindow::errorHandle(QProcess::ProcessError error)
+{
+    process->open = 0;
+    qDebug() << error;
+    switch(error) {
+    case 0:
+        ui->testOutput->appendPlainText("Test Failed to Start.\nCheck for Missing Files, and ensure you have the correct file permissions.");
+        break;
+    case 1:
+        ui->testOutput->appendPlainText("Test Crashed");
+        break;
+    case 5:
+        ui->testOutput->appendPlainText("Test Started");
+        break;
+    }
+    return;
+}
+
 void MainWindow::spawnProcess()
 {
     //This blocks ensures the correct test is started, with the correct launch parameters
     process->ProcessController::setProgramName(programName);
-    process->ProcessController::startProgram(launchArgs);
-
-    //This block handles the error codes during process launch
-    switch(process->process->error())
-    {
-
-        case 0:
-            ui->testOutput->appendPlainText("Test Failed to Start.\nCheck for Missing Files, and ensure you have the correct file permissions.");
-            break;
-        case 1:
-            ui->testOutput->appendPlainText("Test Crashed");
-            break;
-        case 5:
-            ui->testOutput->appendPlainText("Test Started");
-            break;
-    }
-
+    process->ProcessController::startProgram(launchArgs, this);
     launchArgs.clear(); //Resets launch arguments for future test starts
+}
 
-    /* Mounts the process output to the test output box.
-     * Note: suboptimal solution. should look for a better way to link output stream to UI textbrowser
-     */
-    connect(process->process, &QProcess::readyReadStandardOutput,
-            ui->testOutput, [=](){ui->testOutput->appendPlainText(process->output);});
+//Helper function used to output test output to the UI textbox
+void MainWindow::printOut()
+{
+    ui->testOutput->appendPlainText(process->output);
 }
 
 //Stops the test process
