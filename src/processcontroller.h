@@ -30,8 +30,8 @@ public:
     void setProgramName(QString newProgramName);
 
     // launches microbench
-    template <typename Gui>
-    int startProgram(QStringList launchargs, Gui* gui)
+    template <typename GUI>
+    int startProgram(QStringList launchargs, GUI* gui)
     {
         if(!open)
         {
@@ -61,6 +61,8 @@ public:
 
             return 0;
         }
+        else
+            return 1;
     }
 
     int stopProgram();

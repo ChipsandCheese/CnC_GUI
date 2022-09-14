@@ -14,11 +14,12 @@ void ProcessController::setProgramName(QString newProgramName)
 }
 
 // shuts down the process when called
-int ProcessController::stopProgram() {
+int ProcessController::stopProgram()
+{
     if(open == 1)
     {
-        process->kill();
         open = 0;
+        process->kill();
         return 0;
     }
     else

@@ -67,25 +67,6 @@ void MainWindow::on_coherencyLatencyButton_clicked()
     spawnProcess();
 }
 
-//Helper function used to handle errors that may occur
-void MainWindow::errorHandle(QProcess::ProcessError error)
-{
-    process->open = 0;
-    qDebug() << error;
-    switch(error) {
-    case 0:
-        ui->testOutput->appendPlainText("Test Failed to Start.\nCheck for Missing Files, and ensure you have the correct file permissions.");
-        break;
-    case 1:
-        ui->testOutput->appendPlainText("Test Crashed");
-        break;
-    case 5:
-        ui->testOutput->appendPlainText("Test Started");
-        break;
-    }
-    return;
-}
-
 void MainWindow::spawnProcess()
 {
     //This blocks ensures the correct test is started, with the correct launch parameters
@@ -113,3 +94,24 @@ void MainWindow::on_clearOutputButton_clicked()
     ui->testOutput->clear();
 }
 
+//Helper function used to handle errors that may occur
+void MainWindow::errorHandle(QProcess::ProcessError error)
+{
+    if(process->open == 1)//Block errors when process isn't running.  Also blocks crash error when stopProgram() is called.
+    {
+        qDebug() << error;
+        switch(error) {
+        case 0:
+            ui->testOutput->appendPlainText("Test Failed to Start.\nCheck for Missing Files, and ensure you have the correct file permissions.");
+            break;
+        case 1:
+            ui->testOutput->appendPlainText("Test Crashed");
+            break;
+        case 5:
+            ui->testOutput->appendPlainText("Test Started");
+            break;
+        }
+    }
+    process->open = 0;
+    return;
+}
