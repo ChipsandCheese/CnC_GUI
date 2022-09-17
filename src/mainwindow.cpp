@@ -13,24 +13,29 @@ QStringList launchArgs; //used to store process launch arguments for tests that 
 
 //This runs when the mainwindow object is called/spawned
 MainWindow::MainWindow(QWidget* parent)
-        : QMainWindow(parent), ui(new Ui::MainWindow) {
+        : QMainWindow(parent),
+        ui(new Ui::MainWindow)
+{
     ui->setupUi(this);
 }
 
 //This runs when the mainwindow object is destroyed
-MainWindow::~MainWindow() {
+MainWindow::~MainWindow()
+{
     delete ui;
     process->stopProgram(); //Remove if processes are spawned in sub windows
 }
 
 //Runs when Instruction Rate is selected by user
-void MainWindow::on_instructionRateButton_clicked() {
+void MainWindow::on_instructionRateButton_clicked()
+{
     programName = relativePath + "instructionrate/" + isa + "instructionrate" + ext;
     spawnProcess();
 }
 
 //Runs when Memory Bandwidth is selected by user
-void MainWindow::on_memBandwidthButton_clicked() {
+void MainWindow::on_memBandwidthButton_clicked()
+{
     programName = relativePath + "MemoryBandwidth/" + isa + "MemoryBandwidth" + ext;
     launchArgs << "-threads " << QString::number(ui->memBandwidthThreadsBox->value());
 
@@ -42,7 +47,8 @@ void MainWindow::on_memBandwidthButton_clicked() {
 }
 
 //Runs when Memory Latency is selected by user
-void MainWindow::on_memLatencyButton_clicked() {
+void MainWindow::on_memLatencyButton_clicked()
+{
     programName = relativePath + "MemoryLatency/" + isa + "MemoryLatency" + ext;
     if (ui->hugePagesButton->isChecked())
         launchArgs << "-hugepages ";
@@ -54,13 +60,15 @@ void MainWindow::on_memLatencyButton_clicked() {
 }
 
 //Runs when Coherency Latency is selected by user
-void MainWindow::on_coherencyLatencyButton_clicked() {
+void MainWindow::on_coherencyLatencyButton_clicked()
+{
     programName = relativePath + "CoherencyLatency/" + isa + "CoherencyLatency" + ext;
     launchArgs << "-iterations " << QString::number(ui->coherencyLatencyIterationsBox->value());
     spawnProcess();
 }
 
-void MainWindow::spawnProcess() {
+void MainWindow::spawnProcess()
+{
     //This blocks ensures the correct test is started, with the correct launch parameters
     process->ProcessController::setProgramName(programName);
     process->ProcessController::startProgram(launchArgs, this);
@@ -68,30 +76,36 @@ void MainWindow::spawnProcess() {
 }
 
 //Helper function used to output test output to the UI textbox
-void MainWindow::printOut() {
+void MainWindow::printOut()
+{
     ui->testOutput->appendPlainText(process->output);
 }
 
 //Stops the test process
-void MainWindow::on_stopTestButton_clicked() {
+void MainWindow::on_stopTestButton_clicked()
+{
     // Checks if test was actually stopped before printing feedback
-    if (!process->stopProgram()) {
+    if (!process->stopProgram())
+    {
         ui->testOutput->appendPlainText("Test Stopped");
     }
 }
 
 //Clears the text from test output
-void MainWindow::on_clearOutputButton_clicked() {
+void MainWindow::on_clearOutputButton_clicked()
+{
     ui->testOutput->clear();
 }
 
 //Helper function used to handle errors that may occur
-void MainWindow::errorHandle(QProcess::ProcessError error) {
-    if (process->open ==
-        1)//Block errors when process isn't running.  Also blocks crash error when stopProgram() is called.
+void MainWindow::errorHandle(QProcess::ProcessError error)
+{
+    //Block errors when process isn't running.  Also blocks crash error when stopProgram() is called.
+    if (process->open)
     {
         qDebug() << error;
-        switch (error) {
+        switch (error)
+        {
             case QProcess::FailedToStart:
                 ui->testOutput->appendPlainText("Test Failed to Start.");
                 ui->testOutput->appendPlainText(
