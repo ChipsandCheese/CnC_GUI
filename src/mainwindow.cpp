@@ -3,8 +3,14 @@
 
 //Build Variables.  Change Based On Compile Target, or tests may not run.
 QString relativePath = "../../Microbenchmarks/"; //The relative path of test files.
-QString isa = "x86"; //Defines the ISA for the tests to be run. Needs to match the nomenclature used in the test executables.
-QString ext = ".exe"; //Defines the file extension for process executables.
+QString binaryPath;
+
+QString isa = "x86";
+#if CNC_PLATFORM_NAME == Linux
+QString ext = ".elf";
+#elif CNC_PLATFORM_NAME == Windows
+QString ext = ".exe";
+#endif
 
 ProcessController* process = new ProcessController(); //Used to spawn tests as processes.
 QString programName; //The relative path to the test to be run.
@@ -14,9 +20,10 @@ QStringList launchArgs; //used to store process launch arguments for tests that 
 //This runs when the mainwindow object is called/spawned
 MainWindow::MainWindow(QWidget* parent)
         : QMainWindow(parent),
-        ui(new Ui::MainWindow)
+          ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    binaryPath = QCoreApplication::applicationDirPath();
 }
 
 //This runs when the mainwindow object is destroyed
@@ -29,14 +36,14 @@ MainWindow::~MainWindow()
 //Runs when Instruction Rate is selected by user
 void MainWindow::on_instructionRateButton_clicked()
 {
-    programName = relativePath + "instructionrate/" + isa + "instructionrate" + ext;
+    programName = binaryPath + "/" + relativePath + "instructionrate/" + isa + "instructionrate" + ext;
     spawnProcess();
 }
 
 //Runs when Memory Bandwidth is selected by user
 void MainWindow::on_memBandwidthButton_clicked()
 {
-    programName = relativePath + "MemoryBandwidth/" + isa + "MemoryBandwidth" + ext;
+    programName = binaryPath + "/" + relativePath + "MemoryBandwidth/" + isa + "MemoryBandwidth" + ext;
     launchArgs << "-threads " << QString::number(ui->memBandwidthThreadsBox->value());
 
     if (ui->memBandwidthPrivateButton->isChecked())
@@ -49,7 +56,7 @@ void MainWindow::on_memBandwidthButton_clicked()
 //Runs when Memory Latency is selected by user
 void MainWindow::on_memLatencyButton_clicked()
 {
-    programName = relativePath + "MemoryLatency/" + isa + "MemoryLatency" + ext;
+    programName = binaryPath + "/" + relativePath + "MemoryLatency/" + isa + "MemoryLatency" + ext;
     if (ui->hugePagesButton->isChecked())
         launchArgs << "-hugepages ";
     else if (ui->autoNumaButton->isChecked())
@@ -62,7 +69,7 @@ void MainWindow::on_memLatencyButton_clicked()
 //Runs when Coherency Latency is selected by user
 void MainWindow::on_coherencyLatencyButton_clicked()
 {
-    programName = relativePath + "CoherencyLatency/" + isa + "CoherencyLatency" + ext;
+    programName = binaryPath + "/" + relativePath + "CoherencyLatency/" + isa + "CoherencyLatency" + ext;
     launchArgs << "-iterations " << QString::number(ui->coherencyLatencyIterationsBox->value());
     spawnProcess();
 }
