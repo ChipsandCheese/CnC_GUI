@@ -20,11 +20,11 @@ bool ProcessController::stopProgram()
 {
     if (open)
     {
-        open = false;
+        open = false;//Necessary to block feedback from program once killed.
         process->kill();
-        return false;
+        return 0;
     } else
     {
-        return true;
+        return 1;
     }
 }
