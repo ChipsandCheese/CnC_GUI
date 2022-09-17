@@ -6,9 +6,10 @@ QString relativePath = "../../Microbenchmarks/"; //The relative path of test fil
 QString binaryPath;
 
 QString isa = "x86";
-#if CNC_PLATFORM_NAME == Linux
+#ifdef __linux__
 QString ext = ".elf";
-#elif CNC_PLATFORM_NAME == Windows
+#endif
+#ifdef _WIN32
 QString ext = ".exe";
 #endif
 
