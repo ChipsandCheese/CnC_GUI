@@ -1,27 +1,25 @@
 #include "processcontroller.h"
 
+#include <utility>
+
 // creates the process in a known, defined state
-ProcessController::ProcessController()
-{
+ProcessController::ProcessController() {
     process = nullptr;
-    open = 0;
+    open = false;
 }
 
 // sets the microbench process executable relative path
-void ProcessController::setProgramName(QString newProgramName)
-{
-    program = newProgramName;
+void ProcessController::setProgramName(QString newProgramName) {
+    program = std::move(newProgramName);
 }
 
 // shuts down the process when called
-int ProcessController::stopProgram()
-{
-    if(open == 1)
-    {
-        open = 0;
+bool ProcessController::stopProgram() {
+    if (open) {
+        open = false;
         process->kill();
-        return 0;
+        return false;
+    } else {
+        return true;
     }
-    else
-        return 1;
 }

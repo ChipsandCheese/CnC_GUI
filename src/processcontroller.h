@@ -1,5 +1,6 @@
 #ifndef PROCESSCONTROLLER_H
 #define PROCESSCONTROLLER_H
+
 #include <QProcess>
 #include <QTextBrowser>
 
@@ -15,57 +16,55 @@
  *Output is connected to a slot, which can be read for output within an existing QT GUI object
  */
 
-class ProcessController : public QObject
-{
-    Q_OBJECT
+class ProcessController : public QObject {
+Q_OBJECT
 private:
     QString program;
-
 
 public:
     QProcess* process;
     bool open;
     QByteArray output;
+
     ProcessController();
+
     void setProgramName(QString newProgramName);
 
     // launches microbench
-    template <typename GUI>
-    int startProgram(QStringList launchargs, GUI* gui)
-    {
-        if(!open)
-        {
+    template<typename GUI>
+    bool startProgram(const QStringList& launchargs, GUI* gui) {
+        if (!open) {
             // process creation and init logic
-            open = 1; // activate the lock to prevent new instances from spawning
+            open = true; // activate the lock to prevent new instances from spawning
             process = new QProcess(this); // create new process
 
             // if the process reports an error -- release the lock, report error, and return appropriate error code
             connect(process, &QProcess::errorOccurred, gui, [=]() {
-                            gui->errorHandle(process->error());
-                        });
+                gui->errorHandle(process->error());
+            });
 
             // output handling logic
             process->setProcessChannelMode(QProcess::MergedChannels); // directs all output to the stdout stream
-            connect(process, &QProcess::readyReadStandardOutput, gui, [=](){
-                    output = process->readAllStandardOutput();
-                    gui->printOut();
-                        }); // connects to the process' output signal and accepts input from the stdout stream and appends it to a buffer, then signals to the GUI to print the buffer
+            connect(process, &QProcess::readyReadStandardOutput, gui, [=]() {
+                output = process->readAllStandardOutput();
+                gui->printOut();
+            }); // connects to the process' output signal and accepts input from the stdout stream and appends it to a buffer, then signals to the GUI to print the buffer
 
             process->start(program, launchargs); // start the microbenchmark process
 
             // when the process signals that it has finished -- release the lock and free process memory
-            connect(process, &QProcess::finished, this, [=](){
-            open = 0;
-            delete process;
+            connect(process, &QProcess::finished, this, [=]() {
+                open = false;
+                delete process;
             });
 
-            return 0;
+            return false;
+        } else {
+            return true;
         }
-        else
-            return 1;
     }
 
-    int stopProgram();
+    bool stopProgram();
 };
 
 #endif // PROCESSCONTROLLER_H
