@@ -110,16 +110,18 @@ void MainWindow::on_clearOutputButton_clicked()
 }
 
 //Helper function used to handle errors that may occur
-void MainWindow::errorHandle(const QProcess& failedInvocation)
+void MainWindow::errorHandle(const QProcess &failedInvocation)
 {
     //Block errors when process isn't running.  Also blocks crash error when stopProgram() is called.
     if(process->open)
     {
+        //Retrieve error information
         const auto error = failedInvocation.error();
         const QString procPath = failedInvocation.program();
         QFileInfo fileInfo{procPath};
-        // Print some extra context
         const auto ctxt = fileInfo.exists() ? "File exist, check permissions" : "File doesn't exist";
+
+        //Print file path, and error information
         qDebug() << procPath << "\n\t" << ctxt;
         qDebug() << "\t" << error;
         ui->testOutput->appendPlainText("Test failed, please inspect the log.");

@@ -65,7 +65,8 @@ public:
             });
 
             return false;
-        } else
+        }
+        else
         {
             return true;
         }
