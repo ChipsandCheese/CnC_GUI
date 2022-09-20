@@ -110,25 +110,19 @@ void MainWindow::on_clearOutputButton_clicked()
 }
 
 //Helper function used to handle errors that may occur
-void MainWindow::errorHandle(QProcess::ProcessError error)
+void MainWindow::errorHandle(const QProcess& failedInvocation)
 {
     //Block errors when process isn't running.  Also blocks crash error when stopProgram() is called.
     if(process->open)
     {
-        qDebug() << error;
-        switch(error)
-        {
-            case QProcess::FailedToStart:
-                ui->testOutput->appendPlainText("Test Failed to Start.");
-                ui->testOutput->appendPlainText("Check for Missing Files, and ensure you have the correct file permissions.");
-                break;
-            case QProcess::Crashed:
-                ui->testOutput->appendPlainText("Test Crashed");
-                break;
-            case QProcess::UnknownError:
-                ui->testOutput->appendPlainText("Test Started");
-                break;
-        }
+        const auto error = failedInvocation.error();
+        const QString procPath = failedInvocation.program();
+        QFileInfo fileInfo{procPath};
+        // Print some extra context
+        const auto ctxt = fileInfo.exists() ? "File exist, check permissions" : "File doesn't exist";
+        qDebug() << procPath << "\n\t" << ctxt;
+        qDebug() << "\t" << error;
+        ui->testOutput->appendPlainText("Test failed, please inspect the log.");
     }
     process->open = false; //Clears the process state variable so it can be restarted.
 }
