@@ -19,7 +19,7 @@
 #include <iostream>
 #include <QString>
 #include <QStringList>
-
+#include <QFileInfo>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -37,7 +37,7 @@ public:
 
 public slots:
 
-    void errorHandle(QProcess::ProcessError error);
+    void errorHandle(const QProcess& failedInvocation);
 
     void printOut();
 

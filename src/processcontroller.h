@@ -44,7 +44,7 @@ public:
             // if the process reports an error -- release the lock, report error, and return appropriate error code
             connect(process, &QProcess::errorOccurred, gui, [=]()
             {
-                gui->errorHandle(process->error());
+                gui->errorHandle(*process);
             });
 
             // output handling logic
