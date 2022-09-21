@@ -1,21 +1,20 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+//Handles the working directory for tests
+QDir testPath;
+
 // This can be configured using the "RELBENCHPATH" environment variable
 QString relativePath = "../../Microbenchmarks/"; //The relative path of test files.
-// Absolute path to the executable of this program.
-QString binaryPath;
 
 /* This seems completely pointless but it has been left here
  * for now - it can be configured using the "ISAPREFIX"
- * environment variable.
+ * environment variable, or QSysInfo
 */
 QString isaPrefix;
 
 // File extension (for windows), should not be a global variable.
 QString ext;
-
-
 
 ProcessController* process = new ProcessController(); //Used to spawn tests as processes.
 QString programName; //The relative path to the test to be run.
@@ -25,17 +24,16 @@ QStringList launchArgs; //used to store process launch arguments for tests that 
 //This runs when the mainwindow object is called/spawned
 MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    const QString platform = QSysInfo::productType();
-
-    if (platform == "windows")
-    {
+    //checks host platform type to assign correct file extension
+    if(QSysInfo::productType() == "windows")
         ext = ".exe";
-    }
 
-    isaPrefix = qEnvironmentVariable("ISAPREFIX", QString{""});
     relativePath = qEnvironmentVariable("RELBENCHPATH", relativePath);
+    isaPrefix = qEnvironmentVariable("ISAPREFIX", QString{""});//Unused
 
-    binaryPath = QCoreApplication::applicationDirPath();
+    //Set working directory for the tests when window is spawned
+    testPath.setPath(QCoreApplication::applicationDirPath());
+    testPath.cd(relativePath);
 
     ui->setupUi(this);
 }
@@ -50,14 +48,19 @@ MainWindow::~MainWindow()
 //Runs when Instruction Rate is selected by user
 void MainWindow::on_instructionRateButton_clicked()
 {
-    programName = binaryPath + "/" + relativePath + "instructionrate/" + isaPrefix + "instructionrate" + ext;
+    testPath.cd("instructionrate/");
+    programName = testPath.filePath(isaPrefix + "instructionrate" + ext);
+    testPath.cdUp();
     spawnProcess();
 }
 
 //Runs when Memory Bandwidth is selected by user
 void MainWindow::on_memBandwidthButton_clicked()
 {
-    programName = binaryPath + "/" + relativePath + "MemoryBandwidth/" + isaPrefix + "MemoryBandwidth" + ext;
+    testPath.cd("MemoryBandwidth/");
+    programName = testPath.filePath(isaPrefix + "MemoryBandwidth" + ext);
+    testPath.cdUp();
+
     launchArgs << "-threads " << QString::number(ui->memBandwidthThreadsBox->value());
 
     if(ui->memBandwidthPrivateButton->isChecked())
@@ -71,7 +74,9 @@ void MainWindow::on_memBandwidthButton_clicked()
 //Runs when Memory Latency is selected by user
 void MainWindow::on_memLatencyButton_clicked()
 {
-    programName = binaryPath + "/" + relativePath + "MemoryLatency/" + isaPrefix + "MemoryLatency" + ext;
+    testPath.cd("MemoryLatency/");
+    programName = testPath.filePath(isaPrefix + "MemoryLatency" + ext);
+    testPath.cdUp();
 
     if(ui->hugePagesButton->isChecked())
         launchArgs << "-hugepages ";
@@ -86,8 +91,12 @@ void MainWindow::on_memLatencyButton_clicked()
 //Runs when Coherency Latency is selected by user
 void MainWindow::on_coherencyLatencyButton_clicked()
 {
-    programName = binaryPath + "/" + relativePath + "CoherencyLatency/" + isaPrefix + "CoherencyLatency" + ext;
+    testPath.cd("CoherencyLatency/");
+    programName = testPath.filePath(isaPrefix + "CoherencyLatency" + ext);
+    testPath.cdUp();
+
     launchArgs << "-iterations " << QString::number(ui->coherencyLatencyIterationsBox->value());
+
     spawnProcess();
 }
 
